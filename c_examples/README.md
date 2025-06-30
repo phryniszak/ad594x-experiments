@@ -1,17 +1,3 @@
-# CMake Console Application
-
-This project is a simple console application that reads input from the standard console and prints output to the standard console.
-
-## Project Structure
-
-```
-cmake-console-app
-├── src
-│   └── main.cpp
-├── CMakeLists.txt
-└── README.md
-```
-
 ## Requirements
 
 - CMake (version 3.10 or higher)
@@ -33,13 +19,3 @@ cmake-console-app
    ```
    cmake --build .
    ```
-
-## Running the Application
-
-After building the project, you can run the application with the following command:
-
-```
-./cmake-console-app
-```
-
-Follow the prompts to enter input, and the application will display the output on the console.
