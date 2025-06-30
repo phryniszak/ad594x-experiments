@@ -1,0 +1,3 @@
+Example application demonstrating how to do an impedance measurement
+Impedance connected between CE0/REO and SE0 
+TODO: add bias voltage

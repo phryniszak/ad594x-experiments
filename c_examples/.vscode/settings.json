@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "ad5940.h": "c"
+    },
+    "cmake.debugConfig": {
+        "args": ["/dev/ttyACM1",""]
+    },
+
+}

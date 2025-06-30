@@ -1,0 +1,1 @@
+update bootloader with update-xiao_nrf52840_ble_(_sense_)bootloader-0.9.2_nosd.uf2 and then flash with flash2700.uf2
