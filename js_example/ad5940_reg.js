@@ -48,6 +48,8 @@ export const AD5940 = Object.freeze({
         BW50: 0x00000004,
         BW100: 0x00000008,
         BW250: 0x0000000C,
+        LP: 0x00000000,
+        HP: 0x00000001,
     },
     OSCCON: {
         address: 0x00000A10,
@@ -203,26 +205,31 @@ export const AD5940 = Object.freeze({
         address: 0x0000203C,
         BITP_SINEAMPLITUDE: 0,
         BITM_SINEAMPLITUDE: 0x000007FF,
+
     },
     WGOFFSET: {
         address: 0x00002038,
         BITP_SINEOFFSET: 0,
         BITM_SINEOFFSET: 0x00000FFF,
+
     },
     WGPHASE: {
         address: 0x00002034,
         BITP_SINEOFFSET: 0,
         BITM_SINEOFFSET: 0x000FFFFF,
+
     },
     WGDCLEVEL1: {
         address: 0x00002018,
         BITP_TRAPDCLEVEL1: 0,
         BITM_TRAPDCLEVEL1: 0x00000FFF,
+
     },
     WGDCLEVEL2: {
         address: 0x0000201C,
         BITP_TRAPDCLEVEL2: 0,
         BITM_TRAPDCLEVEL2: 0x00000FFF,
+
     },
     WGDELAY1: {
         address: 0x00002020,
@@ -468,8 +475,7 @@ export const AD5940 = Object.freeze({
     HSTIADERLOAD_100R: 4,
     HSTIADERLOAD_OPEN: 5,
 
-    HSTIAPWRMOE_LP: 0,
-    HSTIAPWRMOE_HP: 1,
+
 
 
     HSTIABIAS_1P1: 0,
@@ -482,6 +488,8 @@ export const AD5940 = Object.freeze({
     SWD_AIN3: (1 << 3),
     SWD_CE0: (1 << 4),
     SWD_SE0: (1 << 6),
+
+
     SWP_OPEN: 0,
     SWP_RCAL0: (1 << 0),
     SWP_AIN1: (1 << 1),
@@ -491,6 +499,11 @@ export const AD5940 = Object.freeze({
     SWP_RE1: (1 << 5),
     SWP_SE0: (1 << 6),
     SWP_DE0: (1 << 7),
+    SWP_CE0: (1 << 10),
+    SWP_PL: (1 << 13),
+    SWP_PL2: (1 << 14),
+
+
     SWN_OPEN: 0,
     SWN_RCAL1: (1 << 9),
     SWN_AIN0: (1 << 0),
@@ -504,6 +517,8 @@ export const AD5940 = Object.freeze({
     SWN_SE0: (1 << 8),
     SWN_NL: (1 << 10),
     SWN_NL2: (1 << 11),
+
+
     SWT_OPEN: 0,
     SWT_RCAL1: (1 << 11),
     SWT_AIN0: (1 << 0),
@@ -517,11 +532,16 @@ export const AD5940 = Object.freeze({
     SWT_TRTIA: (1 << 8),
     SWT_DE0LOAD: (1 << 9),
     SWT_DE1LOAD: (1 << 10),
+
+
     ADCPGA_1: 0,
     ADCPGA_1P5: 1,
     ADCPGA_2: 2,
     ADCPGA_4: 3,
     ADCPGA_9: 4,
+
+
+    
     ADCMUXP_FLOAT: 0x0,
     ADCMUXP_HSTIA_P: 0x1,
     ADCMUXP_AIN0: 0x4,
@@ -548,6 +568,8 @@ export const AD5940 = Object.freeze({
     ADCMUXP_LPTIA0_P: 0x21,
     ADCMUXP_AGND: 0x23,
     ADCMUXP_P_NODE: 0x24,
+
+    
     ADCMUXN_FLOAT: 0x0,
     ADCMUXN_HSTIA_N: 0x1,
     ADCMUXN_LPTIA0_N: 0x2,
@@ -562,9 +584,13 @@ export const AD5940 = Object.freeze({
     ADCMUXN_VZERO0: 0x10,
     ADCMUXN_VBIAS0: 0x11,
     ADCMUXN_N_NODE: 0x14,
+
+    
     ADCSINC3OSR_2: 2,
     ADCSINC3OSR_4: 1,
     ADCSINC3OSR_5: 0,
+
+    
     ADCSINC2OSR_22: 0,
     ADCSINC2OSR_44: 1,
     ADCSINC2OSR_89: 2,
@@ -577,16 +603,24 @@ export const AD5940 = Object.freeze({
     ADCSINC2OSR_889: 9,
     ADCSINC2OSR_1067: 10,
     ADCSINC2OSR_1333: 11,
+
+    
     ADCAVGNUM_2: 0,
     ADCAVGNUM_4: 1,
     ADCAVGNUM_8: 2,
     ADCAVGNUM_16: 3,
+
+    
     ADCRATE_800KHZ: 1,
     ADCRATE_1P6MHZ: 0,
+
+    
     DFTSRC_SINC2NOTCH: 0,
     DFTSRC_SINC3: 1,
     DFTSRC_ADCRAW: 2,
     DFTSRC_AVG: 3,
+
+    
     DFTNUM_4: 0,
     DFTNUM_8: 1,
     DFTNUM_16: 2,
@@ -600,16 +634,21 @@ export const AD5940 = Object.freeze({
     DFTNUM_4096: 10,
     DFTNUM_8192: 11,
     DFTNUM_16384: 12,
+
+    
     STATSAMPLE_128: 0,
     STATSAMPLE_64: 1,
     STATSAMPLE_32: 2,
     STATSAMPLE_16: 3,
     STATSAMPLE_8: 4,
+
+    
     STATDEV_1: 1,
     STATDEV_4: 4,
     STATDEV_9: 9,
     STATDEV_16: 16,
     STATDEV_25: 25,
+
     AFECTRL_HPREFPWR: (1 << 5),
     AFECTRL_HSDACPWR: (1 << 6),
     AFECTRL_ADCPWR: (1 << 7),
@@ -626,19 +665,24 @@ export const AD5940 = Object.freeze({
     AFECTRL_DACREFPWR: (1 << 20),
     AFECTRL_DCBUFPWR: (1 << 21),
     AFECTRL_ALL: 0x39ffe0,
+
     FIFOMODE_FIFO: 0,
     FIFOMODE_STREAM: 1,
+
     FIFOSRC_SINC3: 0,
     FIFOSRC_DFT: 2,
     FIFOSRC_SINC2NOTCH: 3,
     FIFOSRC_VAR: 4,
     FIFOSRC_MEAN: 5,
+
     FIFOSIZE_32B: 0,
     FIFOSIZE_2KB: 1,
     FIFOSIZE_4KB: 2,
     FIFOSIZE_6KB: 3,
+
     AFEINTC_0: 0,
     AFEINTC_1: 1,
+
     AFEINTSRC_ADCRDY: 0x00000001,
     AFEINTSRC_DFTRDY: 0x00000002,
     AFEINTSRC_SINC2RDY: 0x00000004,
@@ -672,13 +716,17 @@ export const AD5940 = Object.freeze({
     AFEINTSRC_GPT0INT_SLPWUT: 0x40000000,
     AFEINTSRC_GPT1INT_TRYBRK: 0x80000000,
     AFEINTSRC_ALLINT: 0xffffffff,
+
+
+    AFEPWR_LP: 0,
+    AFEPWR_HP: 1,
+
+    AFEBW_NOACT: 0,
+    AFEBW_50KHZ: 1,
+    AFEBW_100KHZ: 2,
+    AFEBW_250KHZ: 3,
 });
 
-/**
- * Check if the value is a valid ADCPGA setting.
- * @param {number} pga
- * @returns {boolean}
- */
 export function isValidADCPGA(pga) {
     return (
         pga === AD5940.ADCPGA_1 ||
@@ -689,11 +737,6 @@ export function isValidADCPGA(pga) {
     );
 }
 
-/**
- * Check if the value is a valid ADCSINC3OSR setting.
- * @param {number} osr
- * @returns {boolean}
- */
 export function isValidADCSINC3OSR(osr) {
     return (
         osr === AD5940.ADCSINC3OSR_2 ||
@@ -702,11 +745,6 @@ export function isValidADCSINC3OSR(osr) {
     );
 }
 
-/**
- * Check if the value is a valid ADCSINC2OSR setting.
- * @param {number} osr
- * @returns {boolean}
- */
 export function isValidADCSINC2OSR(osr) {
     return (
         osr === AD5940.ADCSINC2OSR_22 ||
@@ -724,11 +762,6 @@ export function isValidADCSINC2OSR(osr) {
     );
 }
 
-/**
- * Check if the value is a valid ADCAVGNUM setting.
- * @param {number} num
- * @returns {boolean}
- */
 export function isValidADCAVGNUM(num) {
     return (
         num === AD5940.ADCAVGNUM_2 ||
@@ -738,11 +771,6 @@ export function isValidADCAVGNUM(num) {
     );
 }
 
-/**
- * Check if the value is a valid ADCRATE setting.
- * @param {number} rate
- * @returns {boolean}
- */
 export function isValidADCRATE(rate) {
     return (
         rate === AD5940.ADCRATE_800KHZ ||

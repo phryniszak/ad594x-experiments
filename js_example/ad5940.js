@@ -9,7 +9,9 @@ export async function ad5940_AFEPwrBW(serialManager, powerMode, bandwidth) {
     return await serialManager.exchangeJsonRpc("wr", { address: AD5940.PMBW.address, data: tempreg });
 }
 
+
 export async function ad5940_HFOSC32MHzCtrl(serialManager, mode32MHz) {
+
     let clken1Response = await serialManager.exchangeJsonRpc("rd", { address: AD5940.CLKEN1.address });
     let rdCLKEN1 = clken1Response.result;
     let bit8 = (rdCLKEN1 >> 9) & 0x01;
@@ -18,7 +20,6 @@ export async function ad5940_HFOSC32MHzCtrl(serialManager, mode32MHz) {
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.CLKEN1.address, data: rdCLKEN1 | AD5940.CLKEN1.BITM_ACLKDIS });
     let hposcconResponse = await serialManager.exchangeJsonRpc("rd", { address: AD5940.HPOSCCON.address });
     let rdHPOSCCON = hposcconResponse.result;
-
     if (mode32MHz) {
         rdHPOSCCON &= ~AD5940.HPOSCCON.BITM_CLK32MHZEN;
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.HPOSCCON.address, data: rdHPOSCCON });
@@ -26,69 +27,80 @@ export async function ad5940_HFOSC32MHzCtrl(serialManager, mode32MHz) {
         rdHPOSCCON |= AD5940.HPOSCCON.BITM_CLK32MHZEN;
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.HPOSCCON.address, data: rdHPOSCCON });
     }
-
     let tempreg = 0;
     do {
         let osccconResponse = await serialManager.exchangeJsonRpc("rd", { address: AD5940.OSCCON.address });
         tempreg = osccconResponse.result;
     } while (!(tempreg & AD5940.OSCCON.BITM_HFOSCOK));
-
     await serialManager.exchangeJsonRpc("wr", {
         address: AD5940.CLKEN1.address,
         data: rdCLKEN1 & ~AD5940.CLKEN1.BITM_ACLKDIS,
     });
 }
 
+
 export async function ad5940_CLKCfg(serialManager, clkCfg) {
+
     let tempreg, reg_osccon;
 
+    
     const oscconResponse = await serialManager.exchangeJsonRpc("rd", { address: AD5940.OSCCON.address });
     reg_osccon = oscconResponse.result;
 
+    
     if (clkCfg.HFXTALEn) {
         reg_osccon |= AD5940.OSCCON.BITM_HFXTALEN;
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.OSCKEY.address, data: AD5940.OSCKEY.KEY });
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.OSCCON.address, data: reg_osccon });
 
+        
         do {
             const tempResponse = await serialManager.exchangeJsonRpc("rd", { address: AD5940.OSCCON.address });
             tempreg = tempResponse.result;
         } while (!(tempreg & AD5940.OSCCON.BITM_HFXTALOK));
     }
 
+    
     if (clkCfg.HFOSCEn) {
         reg_osccon |= AD5940.OSCCON.BITM_HFOSCEN;
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.OSCKEY.address, data: AD5940.OSCKEY.KEY });
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.OSCCON.address, data: reg_osccon });
 
+        
         do {
             const tempResponse = await serialManager.exchangeJsonRpc("rd", { address: AD5940.OSCCON.address });
             tempreg = tempResponse.result;
         } while (!(tempreg & AD5940.OSCCON.BITM_HFOSCOK));
     }
 
+    
     if (clkCfg.LFOSCEn) {
         reg_osccon |= AD5940.OSCCON.BITM_LFOSCEN;
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.OSCKEY.address, data: AD5940.OSCKEY.KEY });
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.OSCCON.address, data: reg_osccon });
 
+        
         do {
             const tempResponse = await serialManager.exchangeJsonRpc("rd", { address: AD5940.OSCCON.address });
             tempreg = tempResponse.result;
         } while (!(tempreg & AD5940.OSCCON.BITM_LFOSCOK));
     }
 
+    
     await ad5940_HFOSC32MHzCtrl(serialManager, clkCfg.HfOSC32MHzMode);
 
+    
     tempreg = clkCfg.SysClkDiv & 0x3f;
     tempreg |= (clkCfg.SysClkDiv & 0x3f) << AD5940.CLKCON0.BITP_SYSCLKDIV;
     tempreg |= (clkCfg.ADCClkDiv & 0xf) << AD5940.CLKCON0.BITP_ADCCLKDIV;
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.CLKCON0.address, data: tempreg });
 
+    
     tempreg = clkCfg.SysClkSrc;
     tempreg |= clkCfg.ADCCLkSrc << AD5940.CLKSEL.BITP_ADCCLKSEL;
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.CLKSEL.address, data: tempreg });
 
+    
     if (!clkCfg.HFXTALEn) { reg_osccon &= ~AD5940.OSCCON.BITM_HFXTALEN; }
     if (!clkCfg.HFOSCEn) { reg_osccon &= ~AD5940.OSCCON.BITM_HFOSCEN; }
     if (!clkCfg.LFOSCEn) { reg_osccon &= ~AD5940.OSCCON.BITM_LFOSCEN; }
@@ -97,7 +109,10 @@ export async function ad5940_CLKCfg(serialManager, clkCfg) {
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.OSCCON.address, data: reg_osccon });
 }
 
+
 export async function ad5940_REFCfgS(serialManager, bufCfg) {
+
+    
     const afeconResponse = await serialManager.exchangeJsonRpc("rd", { address: AD5940.AFECON.address });
     let tempreg = afeconResponse.result;
     tempreg &= ~AD5940.AFECON.BITM_HPREFDIS;
@@ -106,6 +121,7 @@ export async function ad5940_REFCfgS(serialManager, bufCfg) {
     }
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.AFECON.address, data: tempreg });
 
+    
     const bufsenconResponse = await serialManager.exchangeJsonRpc("rd", { address: AD5940.BUFSENCON.address });
     tempreg = bufsenconResponse.result;
 
@@ -120,6 +136,7 @@ export async function ad5940_REFCfgS(serialManager, bufCfg) {
 
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.BUFSENCON.address, data: tempreg });
 
+    
     tempreg = 0;
     if (!bufCfg.LpRefBufEn) { tempreg |= AD5940.LPREFBUFCON.BITM_LPBUF2P5DIS; }
     if (!bufCfg.LpBandgapEn) { tempreg |= AD5940.LPREFBUFCON.BITM_LPREFDIS; }
@@ -127,6 +144,8 @@ export async function ad5940_REFCfgS(serialManager, bufCfg) {
 
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.LPREFBUFCON.address, data: tempreg });
 }
+
+
 
 export async function ad5940_HSDacCfgS(serialManager, hsDacCfg) {
     let tempreg = 0;
@@ -143,6 +162,7 @@ export async function ad5940_HSDacCfgS(serialManager, hsDacCfg) {
 
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.HSDACCON.address, data: tempreg });
 }
+
 
 export async function ad5940_HSTIACfgS(serialManager, hsTiaCfg) {
 
@@ -168,7 +188,7 @@ export async function ad5940_HSTIACfgS(serialManager, hsTiaCfg) {
 
     tempreg = 0;
     if (hsTiaCfg.HstiaDeRtia >= AD5940.HSTIADERTIA_OPEN) {
-        tempreg = 0x1f << 3;
+        tempreg = 0x1f << 3; 
     } else if (hsTiaCfg.HstiaDeRtia >= AD5940.HSTIADERTIA_1K) {
         tempreg = (hsTiaCfg.HstiaDeRtia - 3 + 11) << 3;
     } else {
@@ -180,7 +200,7 @@ export async function ad5940_HSTIACfgS(serialManager, hsTiaCfg) {
         if (hsTiaCfg.HstiaDeRload < AD5940.HSTIA.DERLOAD_OPEN) {
             tempreg = DeRtiaTable[hsTiaCfg.HstiaDeRtia][hsTiaCfg.HstiaDeRload] << 3;
         } else {
-            tempreg = 0x1f << 3;
+            tempreg = 0x1f << 3; 
         }
     }
 
@@ -188,6 +208,8 @@ export async function ad5940_HSTIACfgS(serialManager, hsTiaCfg) {
 
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.DE0RESCON.address, data: tempreg });
 }
+
+
 
 export async function ad5940_SWMatrixCfgS(serialManager, swMatrixCfg) {
 
@@ -216,6 +238,7 @@ export async function ad5940_SWMatrixCfgS(serialManager, swMatrixCfg) {
         data: AD5940.SWCON.BITM_SWSOURCESEL,
     });
 }
+
 
 export async function ad5940_WGCfgS(serialManager, wgCfg) {
     if (wgCfg.WgType === AD5940.WGTYPE_SIN) {
@@ -291,19 +314,23 @@ export function ad5940_WGFreqWordCal(SinFreqHz, WGClock) {
     return temp >>> 0;
 }
 
+
 export async function ad5940_ADCBaseCfgS(serialManager, adcInit) {
 
     if (!isValidADCPGA(adcInit.ADCPga)) {
         throw new Error("Invalid ADCPga value");
     }
 
+    
     let tempreg = 0;
     tempreg = adcInit.ADCMuxP;
     tempreg |= (adcInit.ADCMuxN << AD5940.ADCCON.BITP_MUXSELN);
+    
     tempreg |= (adcInit.ADCPga << AD5940.ADCCON.BITP_GNPGA);
 
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.ADCCON.address, data: tempreg });
 }
+
 
 export async function ad5940_ADCFilterCfgS(serialManager, filtCfg) {
 
@@ -345,6 +372,7 @@ export async function ad5940_ADCFilterCfgS(serialManager, filtCfg) {
     }
 }
 
+
 export async function ad5940_ADCDigCompCfgS(serialManager, compCfg) {
     await serialManager.exchangeJsonRpc("wr", {
         address: AD5940.ADCMIN.address,
@@ -364,19 +392,24 @@ export async function ad5940_ADCDigCompCfgS(serialManager, compCfg) {
     });
 }
 
+
 export async function ad5940_DFTCfgS(serialManager, dftCfg) {
     let reg_dftcon = 0;
 
+    
     let adcfilterResp = await serialManager.exchangeJsonRpc("rd", { address: AD5940.ADCFILTERCON.address });
     let reg_adcfilter = adcfilterResp.result;
 
+    
     if (dftCfg.DftSrc === AD5940.DFTSRC_AVG) {
         reg_adcfilter |= AD5940.ADCFILTERCON.BITM_AVRGEN;
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.ADCFILTERCON.address, data: reg_adcfilter });
     } else {
+    
         reg_adcfilter &= ~AD5940.ADCFILTERCON.BITM_AVRGEN;
         await serialManager.exchangeJsonRpc("wr", { address: AD5940.ADCFILTERCON.address, data: reg_adcfilter });
 
+        
         reg_dftcon |= (dftCfg.DftSrc << AD5940.DFTCON.BITP_DFTINSEL);
     }
 
@@ -389,6 +422,7 @@ export async function ad5940_DFTCfgS(serialManager, dftCfg) {
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.DFTCON.address, data: reg_dftcon });
 }
 
+
 export async function ad5940_StatisticCfgS(serialManager, statCfg) {
     let tempreg = 0;
     if (statCfg.StatEnable === true) { tempreg |= AD5940.STATSCON.BITM_STATSEN; }
@@ -399,6 +433,7 @@ export async function ad5940_StatisticCfgS(serialManager, statCfg) {
         data: tempreg,
     });
 }
+
 
 export async function ad5940_AFECtrlS(serialManager, AfeCtrlSet, state) {
     let resp = await serialManager.exchangeJsonRpc("rd", { address: AD5940.AFECON.address });
@@ -432,6 +467,7 @@ export async function ad5940_AFECtrlS(serialManager, AfeCtrlSet, state) {
     });
 }
 
+
 export async function ad5940_Initialize(serialManager) {
 
     await serialManager.exchangeJsonRpc("wr", { address: 0x0908, data: 0x2c9 });
@@ -455,6 +491,7 @@ export async function ad5940_Initialize(serialManager) {
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.PMBW.address, data: 0 });
 }
 
+
 export async function ad5940_FIFOCfg(serialManager, fifoCfg) {
 
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.FIFOCON.address, data: 0 });
@@ -474,34 +511,42 @@ export async function ad5940_FIFOCfg(serialManager, fifoCfg) {
         data: fifoCfg.FIFOThresh << AD5940.DATAFIFOTHRES.BITP_HIGHTHRES,
     });
 
+    
     tempreg = 0;
     if (fifoCfg.FIFOEn === true) {
         tempreg |= AD5940.FIFOCON.BITM_DATAFIFOEN;
     }
     tempreg |= (fifoCfg.FIFOSrc << AD5940.FIFOCON.BITP_DATAFIFOSRCSEL);
 
+    
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.FIFOCON.address, data: tempreg });
 }
 
+
 export async function ad5940_INTCCfg(serialManager, AfeIntcSel, AFEIntSrc, state) {
 
+    
     const regaddr = (AfeIntcSel === AD5940.AFEINTC_1) ? AD5940.INTC_INTCSEL1.address : AD5940.INTC_INTCSEL0.address;
 
+    
     const response = await serialManager.exchangeJsonRpc("rd", { address: regaddr });
 
     let tempreg = response.result;
 
+    
     if (state === true) {
-        tempreg |= AFEIntSrc;
+        tempreg |= AFEIntSrc;  
     } else {
-        tempreg &= ~AFEIntSrc;
+        tempreg &= ~AFEIntSrc; 
     }
 
+    
     await serialManager.exchangeJsonRpc("wr", {
         address: regaddr,
         data: tempreg,
     });
 }
+
 
 export async function ad5940_INTCClrFlag(serialManager, AfeIntSrcSel) {
     await serialManager.exchangeJsonRpc("wr", {
@@ -509,6 +554,7 @@ export async function ad5940_INTCClrFlag(serialManager, AfeIntSrcSel) {
         data: AfeIntSrcSel,
     });
 }
+
 
 export async function ad5940_ADCMuxCfgS(serialManager, ADCMuxP, ADCMuxN) {
 
@@ -523,17 +569,25 @@ export async function ad5940_ADCMuxCfgS(serialManager, ADCMuxP, ADCMuxN) {
     await serialManager.exchangeJsonRpc("wr", { address: AD5940.ADCCON.address, data: tempreg });
 }
 
+
 export async function ad5940_INTCTestFlag(serialManager, AfeIntcSel, AfeIntSrcSel) {
+    
     const regaddr = (AfeIntcSel === AD5940.AFEINTC_0)
         ? AD5940.INTC_INTCFLAG0.address : AD5940.INTC_INTCFLAG1.address;
 
+    
     const resp = await serialManager.exchangeJsonRpc("rd", { address: regaddr });
     const tempreg = resp.result;
 
+    
     return (tempreg & AfeIntSrcSel) !== 0;
 }
 
+
+
 export async function ad5940_HSRtiaCal(serialManager, calCfg, result) {
+
+
 
     let bADCClk32MHzMode = false;
     if (calCfg.AdcClkFreq > (32000000 * 0.8)) { bADCClk32MHzMode = true; }
@@ -564,8 +618,10 @@ export async function ad5940_HSRtiaCal(serialManager, calCfg, result) {
     }
     if (WgAmpWord > 0x7ff) { WgAmpWord = 0x7ff; }
 
+    
     await ad5940_AFECtrlS(serialManager, AD5940.AFECTRL_ALL, false);
 
+    
     const aferef_cfg = {
         HpBandgapEn: true,
         Hp1V1BuffEn: true,
@@ -632,20 +688,27 @@ export async function ad5940_HSRtiaCal(serialManager, calCfg, result) {
         },
         DftCfg: { ...calCfg.DftCfg },
     };
+    
     await ad5940_ADCBaseCfgS(serialManager, dsp_cfg.ADCBaseCfg);
     await ad5940_ADCFilterCfgS(serialManager, dsp_cfg.ADCFilterCfg);
+    
     await ad5940_DFTCfgS(serialManager, dsp_cfg.DftCfg);
+    
 
+    
     await ad5940_AFECtrlS(
         serialManager,
         AD5940.AFECTRL_HSTIAPWR | AD5940.AFECTRL_INAMPPWR | AD5940.AFECTRL_EXTBUFPWR |
         AD5940.AFECTRL_DACREFPWR | AD5940.AFECTRL_HSDACPWR | AD5940.AFECTRL_SINC2NOTCH,
         true,
     );
+
+    
     await ad5940_AFECtrlS(serialManager, AD5940.AFECTRL_WG | AD5940.AFECTRL_ADCPWR, true);
     await ad5940_AFECtrlS(serialManager, AD5940.AFECTRL_ADCCNV | AD5940.AFECTRL_DFT, true);
 
-    while (!(await ad5940_INTCTestFlag(serialManager, AD5940.AFEINTC_1, AD5940.AFEINTSRC_DFTRDY))) { /* spin */ }
+    
+    while (!(await ad5940_INTCTestFlag(serialManager, AD5940.AFEINTC_1, AD5940.AFEINTSRC_DFTRDY))) { }
 
     await ad5940_AFECtrlS(
         serialManager,
@@ -654,6 +717,7 @@ export async function ad5940_HSRtiaCal(serialManager, calCfg, result) {
     );
     await ad5940_INTCClrFlag(serialManager, AD5940.AFEINTSRC_DFTRDY);
 
+    
     const dftRcalRealResp = await serialManager.exchangeJsonRpc("rd", { address: AD5940.DFTREAL.address });
     const dftRcalImagResp = await serialManager.exchangeJsonRpc("rd", { address: AD5940.DFTIMAG.address });
     let DftRcal = {
@@ -661,12 +725,14 @@ export async function ad5940_HSRtiaCal(serialManager, calCfg, result) {
         imag: convertDftToInt(dftRcalImagResp.result),
     };
 
+    
     await ad5940_ADCMuxCfgS(serialManager, AD5940.ADCMUXP_HSTIA_P, AD5940.ADCMUXN_HSTIA_N);
 
     await ad5940_AFECtrlS(serialManager, AD5940.AFECTRL_WG | AD5940.AFECTRL_ADCPWR, true);
     await ad5940_AFECtrlS(serialManager, AD5940.AFECTRL_ADCCNV | AD5940.AFECTRL_DFT, true);
 
-    while (!(await ad5940_INTCTestFlag(serialManager, AD5940.AFEINTC_1, AD5940.AFEINTSRC_DFTRDY))) { /* spin */ }
+    
+    while (!(await ad5940_INTCTestFlag(serialManager, AD5940.AFEINTC_1, AD5940.AFEINTSRC_DFTRDY))) { }
 
     await ad5940_AFECtrlS(
         serialManager,
@@ -675,6 +741,7 @@ export async function ad5940_HSRtiaCal(serialManager, calCfg, result) {
     );
     await ad5940_INTCClrFlag(serialManager, AD5940.AFEINTSRC_DFTRDY);
 
+    
     const dftRtiaRealResp = await serialManager.exchangeJsonRpc("rd", { address: AD5940.DFTREAL.address });
     const dftRtiaImagResp = await serialManager.exchangeJsonRpc("rd", { address: AD5940.DFTIMAG.address });
     let DftRtia = {
@@ -687,21 +754,79 @@ export async function ad5940_HSRtiaCal(serialManager, calCfg, result) {
     DftRtia.imag = -DftRtia.imag;
     DftRcal.imag = -DftRcal.imag;
 
+    
     let res = complexDiv(DftRtia, DftRcal);
     res.real *= calCfg.fRcal;
     res.imag *= calCfg.fRcal;
 
-    if (!calCfg.bPolarResult) {
+    if (calCfg.bPolarResult) {
+        result.magnitude = complexMag(res.real, res.imag);
+        result.phase = complexPhase(res.real, res.imag);
+    } else {
         result.real = res.real;
         result.imag = res.imag;
-    } else {
-        result.Magnitude = complexMag(res.real, res.imag);
-        result.Phase = complexPhase(res.real, res.imag);
     }
     return 0;
 }
 
+
+export function ad5940_SweepNext(sweepCfg) {
+    let frequency;
+
+    if (sweepCfg.sweep_log) {
+    
+        if (sweepCfg.sweep_start < sweepCfg.sweep_stop) {
+            
+            frequency = sweepCfg.sweep_start * Math.pow(
+                10,
+                (sweepCfg.sweep_index * Math.log10(sweepCfg.sweep_stop / sweepCfg.sweep_start)) /
+                (sweepCfg.sweep_points - 1)
+            );
+            ++sweepCfg.sweep_index;
+            if (sweepCfg.sweep_index === sweepCfg.sweep_points) {
+                sweepCfg.sweep_index = 0;
+            }
+        } else {
+            
+            frequency = sweepCfg.sweep_stop * Math.pow(
+                10,
+                (sweepCfg.sweep_index * Math.log10(sweepCfg.sweep_start / sweepCfg.sweep_stop)) /
+                (sweepCfg.sweep_points - 1)
+            );
+            sweepCfg.sweep_index--;
+            if (sweepCfg.sweep_index < 0) {
+                sweepCfg.sweep_index = sweepCfg.sweep_points - 1;
+            }
+        }
+    } else {
+        
+        if (sweepCfg.sweep_start < sweepCfg.sweep_stop) {
+            
+            frequency = sweepCfg.sweep_start +
+                (sweepCfg.sweep_index * (sweepCfg.sweep_stop - sweepCfg.sweep_start)) /
+                (sweepCfg.sweep_points - 1);
+            ++sweepCfg.sweep_index;
+            if (sweepCfg.sweep_index === sweepCfg.sweep_points) {
+                sweepCfg.sweep_index = 0;
+            }
+        } else {
+            
+            frequency = sweepCfg.sweep_stop +
+                (sweepCfg.sweep_index * (sweepCfg.sweep_start - sweepCfg.sweep_stop)) /
+                (sweepCfg.sweep_points - 1);
+            sweepCfg.sweep_index--;
+            if (sweepCfg.sweep_index < 0) {
+                sweepCfg.sweep_index = sweepCfg.sweep_points - 1;
+            }
+        }
+    }
+
+    return frequency;
+}
+
+
 export function convertDftToInt(x) {
+    
     if (x & 0x20000) {
         return (x | 0xFFFC0000) << 0;
     } else {
@@ -709,13 +834,16 @@ export function convertDftToInt(x) {
     }
 }
 
+
 export function complexMag(real, imag) {
     return Math.sqrt(real * real + imag * imag);
 }
 
+
 export function complexPhase(real, imag) {
     return Math.atan2(imag, real);
 }
+
 
 export function complexDiv(num, den) {
     const a = num.real, b = num.imag;

@@ -56,8 +56,7 @@ export class SerialPortManager {
 
         try {
             while (true) {
-                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), timeoutMs)
-                );
+                const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), timeoutMs));
 
                 const { value, done } = await Promise.race([
                     reader.read(),
@@ -127,6 +126,7 @@ export class SerialPortManager {
             id = this.#id++;
         }
 
+
         if (!this.#port) {
             this.logToTerminal("Error: Serial Port not open.", "error");
             return null;
@@ -150,28 +150,20 @@ export class SerialPortManager {
         }
 
         const commandString = JSON.stringify(command);
-
         await this.write(commandString);
-
         const jsonResponse = await this.readJson();
-
-
         if (!jsonResponse) {
             this.logToTerminal("Error: No valid JSON frame received", "error");
             throw new Error("No valid JSON frame received");
         }
-
-
         if (id !== jsonResponse.id) {
             this.logToTerminal(`Error: Mismatched response ID: expected ${id}, got ${jsonResponse.id}`, "error");
             throw new Error(`Mismatched response ID: expected ${id}, got ${jsonResponse.id}`);
         }
-
         if (jsonResponse.error) {
             this.logToTerminal(`Error: ${JSON.stringify(jsonResponse.error)}`, "error");
             throw new Error(`Error: ${JSON.stringify(jsonResponse.error)}`);
         }
-
         return jsonResponse;
     }
 }
