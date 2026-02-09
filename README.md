@@ -14,7 +14,3 @@ This repository contains experiments and examples for working with the AD594x se
 - **main.js/**: Contains test, RTIA and impedance measurement example
 
 <img src="images/screenshot_1.png" width="800">
-
-### BTW
-I have a few boards left. If interested please contact me. Around 40 Euro + p&p
-
